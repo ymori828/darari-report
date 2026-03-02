@@ -483,12 +483,12 @@
     </div>
   </div>
 
-  <!-- Two col: monthly + efficiency -->
-  <div class="two-col">
+  <!-- 月別詳細 + 積載効率（等高2列） -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;align-items:stretch;">
     <!-- Monthly -->
-    <div>
+    <div style="display:flex;flex-direction:column;">
       <div class="sec-title">月別詳細データ</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1;">
         <div class="month-card">
           <div class="month-title">3月 <span class="month-badge">繁忙・632t</span></div>
           <div class="m-row"><span class="m-name">台数/月</span><div class="m-vals"><span class="v-r">183台</span><span class="v-arrow">→</span><span class="v-u">88台</span><span class="v-diff">▲52%</span></div></div>
@@ -508,9 +508,9 @@
       </div>
     </div>
     <!-- Efficiency -->
-    <div>
+    <div style="display:flex;flex-direction:column;">
       <div class="sec-title">積載効率・稼働率の比較</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1;">
         <div class="eff-card">
           <div class="eff-title">実車積載率（3月）</div>
           <div class="eff-row"><span class="eff-tag r">R</span><div class="eff-bar-wrap"><div class="eff-fill r-fill" style="width:38%"><span class="eff-pct r-c">38%</span></div></div></div>
@@ -528,24 +528,46 @@
           <div class="eff-row"><span class="eff-tag u">U</span><div class="eff-bar-wrap"><div class="eff-fill u-fill" style="width:46%"><span class="eff-pct u-c">46%</span></div></div></div>
         </div>
       </div>
-      <div class="darari-box">
-        <div class="darari-box-title">「ダラリ」の構造</div>
-        <div class="darari-grid">
-          <div class="darari-item"><div class="darari-emoji">⚠️</div><div class="darari-label" style="color:#c62828">ムリ＋ムラ</div><div class="darari-desc">制約＋波動対応の<br>過剰なトラック確保</div></div>
-          <div class="darari-item"><div class="darari-emoji">🚛</div><div class="darari-label" style="color:#e65100">ムダ</div><div class="darari-desc">稼働可能な時間・<br>荷台が空きになる</div></div>
-          <div class="darari-item"><div class="darari-emoji">🕐</div><div class="darari-label" style="color:#6b7a99">午前集中</div><div class="darari-desc">配送指定が午前に<br>偏り待機が発生</div></div>
-        </div>
-      </div>
     </div>
   </div>
 
-  <!-- Proposal -->
-  <div class="proposal-box">
-    <div class="sec-title" style="margin-bottom:16px">◎ 改善提案</div>
-    <div class="proposal-grid">
-      <div class="prop-item"><div class="prop-num">01</div><div class="prop-content"><h4>制約を減らす</h4><p>荷主との対話を通じ、時間指定や混載禁止などの配送制約を緩和・撤廃する</p></div></div>
-      <div class="prop-item"><div class="prop-num">02</div><div class="prop-content"><h4>G.works を活用</h4><p>波動を吸収し、配送ネットワークを強化。閑散期のワークシェアリングを解消する</p></div></div>
-      <div class="prop-item"><div class="prop-num">03</div><div class="prop-content"><h4>自動配車システムの導入</h4><p>常に最適配車を目指し、人的判断に依存しない効率的な配車を実現する</p></div></div>
+  <!-- ダラリの構造（白カード3枚 1行） -->
+  <div class="sec-title">考察 — 「ダラリ」の構造</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
+    <div class="kpi-card" style="border-top:3px solid #c62828;text-align:center;padding:24px 20px;">
+      <div style="font-size:28px;margin-bottom:10px;">⚠️</div>
+      <div style="font-size:14px;font-weight:700;color:#c62828;margin-bottom:8px;">ムリ＋ムラ</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;">制約（時間指定・混載禁止）と波動に備え、過剰なトラック数を確保している</div>
+    </div>
+    <div class="kpi-card" style="border-top:3px solid #e65100;text-align:center;padding:24px 20px;">
+      <div style="font-size:28px;margin-bottom:10px;">🚛</div>
+      <div style="font-size:14px;font-weight:700;color:#e65100;margin-bottom:8px;">ムダ</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;">稼働できる時間帯・荷台の空きが発生。午前集中の配送指定が午後の待機を生む</div>
+    </div>
+    <div class="kpi-card" style="border-top:3px solid #6b7a99;text-align:center;padding:24px 20px;">
+      <div style="font-size:28px;margin-bottom:10px;">🔄</div>
+      <div style="font-size:14px;font-weight:700;color:#6b7a99;margin-bottom:8px;">ワークシェアリング</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;">閑散期には余剰車両がさらに増加。波動を吸収する仕組みがない</div>
+    </div>
+  </div>
+
+  <!-- 改善提案（白カード3枚 1行） -->
+  <div class="sec-title">◎ 改善提案</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px;">
+    <div class="kpi-card" style="border-top:3px solid var(--blue);padding:24px 20px;">
+      <div class="prop-num" style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:rgba(21,101,192,0.2);line-height:1;margin-bottom:8px;">01</div>
+      <h4 style="font-size:14px;font-weight:700;margin-bottom:6px;">制約を減らす</h4>
+      <p style="font-size:12px;color:var(--muted);line-height:1.6;">荷主との対話を通じ、時間指定や混載禁止などの配送制約を緩和・撤廃する</p>
+    </div>
+    <div class="kpi-card" style="border-top:3px solid var(--green);padding:24px 20px;">
+      <div class="prop-num" style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:rgba(46,125,50,0.2);line-height:1;margin-bottom:8px;">02</div>
+      <h4 style="font-size:14px;font-weight:700;margin-bottom:6px;">G.works を活用</h4>
+      <p style="font-size:12px;color:var(--muted);line-height:1.6;">波動を吸収し、配送ネットワークを強化。閑散期のワークシェアリングを解消する</p>
+    </div>
+    <div class="kpi-card" style="border-top:3px solid #e65100;padding:24px 20px;">
+      <div class="prop-num" style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:rgba(230,81,0,0.2);line-height:1;margin-bottom:8px;">03</div>
+      <h4 style="font-size:14px;font-weight:700;margin-bottom:6px;">自動配車システムの導入</h4>
+      <p style="font-size:12px;color:var(--muted);line-height:1.6;">常に最適配車を目指し、人的判断に依存しない効率的な配車を実現する</p>
     </div>
   </div>
 
