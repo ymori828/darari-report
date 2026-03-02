@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>配送ダラリレポート</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Bebas+Neue&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --blue: #1565c0;
+    --red: #c62828;
+    --green: #2e7d32;
+    --bg: #f4f6fa;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1a2035;
+    --muted: #6b7a99;
+  }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ===================== INFOGRAPHIC VIEW ===================== */
+  #infographic-view {
+    width: 1200px;
+    margin: 0 auto;
+    padding: 48px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  #infographic-view::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,140,220,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Presentation button */
+  #present-btn {
+    position: fixed;
+    bottom: 32px; right: 32px;
+    background: var(--blue);
+    color: var(--text);
+    border: none;
+    border-radius: 50px;
+    padding: 14px 28px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(21,101,192,0.4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 100;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  #present-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(21,101,192,0.5);
+  }
+  #present-btn svg { width: 18px; height: 18px; }
+
+  /* ===================== HEADER ===================== */
+  .ig-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 24px;
+  }
+  .ig-header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    letter-spacing: 4px;
+    color: var(--blue);
+    line-height: 1;
+  }
+  .ig-header h2 {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: 1px;
+  }
+  .ig-header-right { text-align: right; }
+  .ig-tag {
+    display: inline-block;
+    background: rgba(21,101,192,0.1);
+    border: 1px solid rgba(21,101,192,0.3);
+    color: var(--blue);
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+  .ig-header-right p { font-size: 11px; color: #9aa3b8; }
+
+  /* Lead */
+  .ig-lead {
+    background: linear-gradient(135deg, rgba(21,101,192,0.07), rgba(0,150,100,0.05));
+    border: 1px solid rgba(21,101,192,0.15);
+    border-radius: 12px;
+    padding: 18px 28px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .ig-lead .icon { font-size: 28px; }
+  .ig-lead p { font-size: 14px; line-height: 1.7; color: #2d3a55; }
+  .ig-lead p strong { color: var(--blue); font-size: 15px; }
+
+  /* Section title */
+  .sec-title {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #9aa3b8;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sec-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* KPI grid */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .kpi-card.blue::before { background: linear-gradient(90deg, #1565c0, #42a5f5); }
+  .kpi-card.red::before  { background: linear-gradient(90deg, #c62828, #ff7043); }
+  .kpi-card.green::before{ background: linear-gradient(90deg, #2e7d32, #66bb6a); }
+  .kpi-label { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .kpi-main { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+  .kpi-number { font-family: 'Bebas Neue', sans-serif; font-size: 60px; line-height: 1; }
+  .kpi-card.blue .kpi-number { color: var(--blue); }
+  .kpi-card.red  .kpi-number { color: var(--red); }
+  .kpi-card.green .kpi-number { color: var(--green); }
+  .kpi-unit { font-size: 18px; font-weight: 700; color: #4a5568; }
+  .kpi-desc { font-size: 11px; color: #8a94aa; margin-bottom: 14px; line-height: 1.5; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bar-lbl { font-size: 10px; width: 12px; font-weight: 700; flex-shrink: 0; }
+  .bar-bg { flex: 1; height: 10px; background: #eef1f8; border-radius: 5px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 5px; }
+  .bar-val { font-size: 10px; width: 60px; text-align: right; color: var(--muted); flex-shrink: 0; }
+  .bar-note { font-size: 10px; color: #9aa3b8; margin-top: 4px; }
+
+  /* 2-col layout */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+
+  /* Month cards */
+  .month-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+  }
+  .month-title { font-size: 13px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .month-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: #eef1f8; color: var(--muted); }
+  .m-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #f0f3fa; }
+  .m-row:last-child { border-bottom: none; }
+  .m-name { font-size: 11px; color: var(--muted); }
+  .m-vals { display: flex; gap: 8px; align-items: center; }
+  .v-r { font-size: 11px; color: var(--red); font-weight: 700; }
+  .v-arrow { font-size: 10px; color: #c0c8d8; }
+  .v-u { font-size: 11px; color: var(--blue); font-weight: 700; }
+  .v-diff { font-size: 11px; padding: 2px 7px; border-radius: 8px; background: rgba(46,125,50,0.1); color: var(--green); font-weight: 700; }
+
+  /* Efficiency bars */
+  .eff-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+  }
+  .eff-title { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .eff-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .eff-tag { font-size: 10px; font-weight: 700; width: 14px; flex-shrink: 0; }
+  .eff-tag.r { color: var(--red); }
+  .eff-tag.u { color: var(--blue); }
+  .eff-bar-wrap { flex: 1; height: 22px; background: #eef1f8; border-radius: 4px; overflow: hidden; }
+  .eff-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 10px; }
+  .eff-fill.r-fill { background: rgba(198,40,40,0.2); }
+  .eff-fill.u-fill { background: rgba(21,101,192,0.2); }
+  .eff-pct { font-size: 11px; font-weight: 700; }
+  .eff-pct.r-c { color: var(--red); }
+  .eff-pct.u-c { color: var(--blue); }
+
+  /* Darari box */
+  .darari-box {
+    margin-top: 14px;
+    background: rgba(198,40,40,0.04);
+    border: 1px solid rgba(198,40,40,0.15);
+    border-radius: 10px;
+    padding: 14px 18px;
+  }
+  .darari-box-title { font-size: 11px; color: #b71c1c; font-weight: 700; margin-bottom: 8px; }
+  .darari-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .darari-item { text-align: center; }
+  .darari-emoji { font-size: 16px; margin-bottom: 4px; }
+  .darari-label { font-size: 11px; font-weight: 700; }
+  .darari-desc { font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+
+  /* Proposal */
+  .proposal-box {
+    background: linear-gradient(135deg, rgba(21,101,192,0.05), rgba(46,125,50,0.05));
+    border: 1px solid rgba(21,101,192,0.15);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+  }
+  .proposal-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .prop-item { display: flex; gap: 12px; align-items: flex-start; }
+  .prop-num { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: rgba(21,101,192,0.2); line-height: 1; flex-shrink: 0; }
+  .prop-content h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .prop-content p { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  /* Footer */
+  .ig-footer {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+    font-size: 11px;
+    color: #9aa3b8;
+  }
+
+  /* ===================== PRESENTATION MODE ===================== */
+  #presentation {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  #presentation.active { display: block; }
+
+  #slides-wrap { width: 100%; height: 100%; position: relative; }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 80px;
+    opacity: 0;
+    transform: translateY(40px);
+    pointer-events: none;
+    transition: opacity 0.6s cubic-bezier(0.4,0,0.2,1), transform 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+  .slide.active { opacity: 1; transform: translateY(0); pointer-events: all; }
+  .slide.exit-up { opacity: 0; transform: translateY(-40px); }
+
+  /* Slide backgrounds — light */
+  .slide-1 { background: linear-gradient(135deg, #f4f6fa 0%, #e8edf8 100%); }
+  .slide-2 { background: linear-gradient(135deg, #f0f4ff 0%, #e8edf8 100%); }
+  .slide-3 { background: linear-gradient(135deg, #fff4f4 0%, #fde8e8 100%); }
+  .slide-4 { background: linear-gradient(135deg, #f0fff4 0%, #e6f4ea 100%); }
+  .slide-5 { background: linear-gradient(135deg, #fdf4ff 0%, #f0e8f8 100%); }
+  .slide-6 { background: linear-gradient(135deg, #f0f8ff 0%, #e4f0fc 100%); }
+
+  /* Slide text */
+  .s-eyebrow { font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: #9aa3b8; margin-bottom: 20px; text-align: center; }
+  .s-title { font-family: 'Bebas Neue', sans-serif; text-align: center; line-height: 1; margin-bottom: 24px; }
+  .s-sub { font-size: 16px; color: #4a5568; text-align: center; line-height: 1.6; max-width: 700px; margin-bottom: 48px; }
+  .s-sub strong { color: var(--text); }
+
+  .big-unit { font-size: 36px; font-weight: 700; color: #4a5568; }
+  .big-label { font-size: 18px; color: var(--muted); text-align: center; margin-bottom: 40px; }
+
+  /* Comparison bars */
+  .s-compare { display: flex; gap: 40px; align-items: flex-end; justify-content: center; margin-bottom: 32px; }
+  .s-compare-item { text-align: center; }
+  .s-bar-wrap { width: 120px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .s-bar {
+    width: 100%; border-radius: 8px 8px 0 0;
+    display: flex; align-items: flex-start; justify-content: center; padding-top: 12px;
+    font-family: 'Bebas Neue', sans-serif; font-size: 28px;
+  }
+  .s-bar.r-bar { background: rgba(198,40,40,0.12); border: 2px solid rgba(198,40,40,0.4); color: var(--red); }
+  .s-bar.u-bar { background: rgba(21,101,192,0.12); border: 2px solid rgba(21,101,192,0.4); color: var(--blue); }
+  .s-bar-label { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .s-arrow-label { font-size: 48px; color: #c0c8d8; align-self: center; padding-bottom: 30px; }
+
+  .s1-logo { font-size: 80px; margin-bottom: 24px; }
+
+  /* Metric cards */
+  .s-metric-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; width: 100%; max-width: 900px; margin-bottom: 32px; }
+  .s-metric-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 16px;
+    padding: 28px 24px; text-align: center; box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  }
+  .s-metric-card .lbl { font-size: 12px; color: var(--muted); margin-bottom: 12px; letter-spacing: 1px; }
+  .s-metric-card .num { font-family: 'Bebas Neue', sans-serif; font-size: 72px; line-height: 0.9; margin-bottom: 6px; }
+  .s-metric-card .unit { font-size: 20px; font-weight: 700; color: #4a5568; }
+  .s-metric-card .desc { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+
+  /* Proposal */
+  .s-prop-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; width: 100%; max-width: 1000px; }
+  .s-prop-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 28px;
+    text-align: center;
+  }
+  .s-prop-num { font-family: 'Bebas Neue', sans-serif; font-size: 80px; line-height: 0.9; color: var(--border); margin-bottom: 16px; }
+  .s-prop-icon { font-size: 36px; margin-bottom: 16px; }
+  .s-prop-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+  .s-prop-desc { font-size: 13px; color: #4a5568; line-height: 1.6; }
+
+  /* Darari slide */
+  .s-darari-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 28px;
+    width: 100%;
+    max-width: 900px;
+  }
+  .s-darari-card {
+    background: #fff;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 36px 24px;
+    text-align: center;
+  }
+  .s-darari-emoji { font-size: 48px; margin-bottom: 16px; }
+  .s-darari-name { font-family: 'Bebas Neue', sans-serif; font-size: 48px; margin-bottom: 8px; }
+  .s-darari-desc { font-size: 13px; color: #4a5568; line-height: 1.6; }
+
+  /* Navigation */
+  #nav-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(10px); border-top: 1px solid var(--border);
+    z-index: 1010;
+  }
+  #presentation.active ~ #nav-bar,
+  #nav-bar.active { display: flex; }
+
+  .nav-btn { background: rgba(21,101,192,0.08); border: 1px solid var(--border); color: var(--text); border-radius: 50%; width: 48px; height: 48px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; 
+    background: rgba(21,101,192,0.08);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 50%;
+    width: 48px; height: 48px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .nav-btn:hover { background: rgba(21,101,192,0.15); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+  #slide-indicator {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .dot.active { background: #fff; width: 24px; border-radius: 4px; }
+
+  #close-btn {
+    position: fixed;
+    top: 24px; right: 24px;
+    background: rgba(21,101,192,0.08);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 50%;
+    width: 44px; height: 44px;
+    font-size: 20px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1020;
+    transition: background 0.2s;
+  }
+  #close-btn:hover { background: rgba(21,101,192,0.15); }
+  #close-btn.active { display: flex; }
+
+  #slide-counter { font-size: 12px; color: var(--muted); min-width: 40px; text-align: center; 
+    font-size: 12px;
+    color: var(--muted);
+    min-width: 40px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================== INFOGRAPHIC VIEW ======================== -->
+<div id="infographic-view">
+
+  <!-- Header -->
+  <div class="ig-header">
+    <div>
+      <h1>配送ダラリレポート</h1>
+      <h2>足立倉庫 — 実績（R）vs 理想（U）配車比較分析</h2>
+    </div>
+    <div class="ig-header-right">
+      <div class="ig-tag">社内資料</div>
+      <p>NPO法人 伝三郎商会 ／ 2025年3月</p>
+      <p>対象期間：2023年12月 〜 2024年11月</p>
+    </div>
+  </div>
+
+  <!-- Lead -->
+  <div class="ig-lead">
+    <div class="icon">💡</div>
+    <p>配車に関わる<strong>制約を取り除いた「理想の配車（U）」</strong>と<strong>実際の配車実績（R）</strong>を比較。<br>
+    制約とワークシェアリングを解消するだけで、トラック台数は<strong>半分以下</strong>に削減できることが判明。</p>
+  </div>
+
+  <!-- KPI -->
+  <div class="sec-title">KEY FINDINGS — U と R の差</div>
+  <div class="kpi-grid">
+    <div class="kpi-card blue">
+      <div class="kpi-label">① トラック台数</div>
+      <div class="kpi-main"><div class="kpi-number">1/2</div><div class="kpi-unit">以下</div></div>
+      <div class="kpi-desc">最大▲57%削減（5月）<br>3月：▲95台 ／ 5月：▲108台</div>
+      <div class="bar-row"><span class="bar-lbl" style="color:var(--red)">R</span><div class="bar-bg"><div class="bar-fill" style="width:100%;background:linear-gradient(90deg,#c62828,#ef5350)"></div></div><span class="bar-val" style="color:var(--red)">183台/月</span></div>
+      <div class="bar-row"><span class="bar-lbl" style="color:var(--blue)">U</span><div class="bar-bg"><div class="bar-fill" style="width:48%;background:linear-gradient(90deg,#1565c0,#42a5f5)"></div></div><span class="bar-val" style="color:var(--blue)">88台/月</span></div>
+      <div class="bar-note">※3月（繁忙期）の数値</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">② 1台あたり稼働時間</div>
+      <div class="kpi-main"><div class="kpi-number">1.4</div><div class="kpi-unit">倍以上</div></div>
+      <div class="kpi-desc">3月：＋2時間28分 ／ 5月：＋2時間35分<br>午前集中の待機時間を有効活用</div>
+      <div class="bar-row"><span class="bar-lbl" style="color:var(--red)">R</span><div class="bar-bg"><div class="bar-fill" style="width:70%;background:linear-gradient(90deg,#c62828,#ff7043)"></div></div><span class="bar-val" style="color:var(--red)">5時間49分</span></div>
+      <div class="bar-row"><span class="bar-lbl" style="color:#e65100">U</span><div class="bar-bg"><div class="bar-fill" style="width:100%;background:linear-gradient(90deg,#ff7043,#ffcc02)"></div></div><span class="bar-val" style="color:#e65100">8時間17分</span></div>
+      <div class="bar-note">※3月（繁忙期）の数値</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">③ 1台あたり配送重量</div>
+      <div class="kpi-main"><div class="kpi-number">2</div><div class="kpi-unit">倍以上</div></div>
+      <div class="kpi-desc">3月：3.4t→7.1t ／ 5月：2.8t→6.5t<br>1台で運べる荷量が大幅に向上</div>
+      <div class="bar-row"><span class="bar-lbl" style="color:var(--red)">R</span><div class="bar-bg"><div class="bar-fill" style="width:48%;background:linear-gradient(90deg,#c62828,#ef5350)"></div></div><span class="bar-val" style="color:var(--red)">3.4t/日</span></div>
+      <div class="bar-row"><span class="bar-lbl" style="color:var(--green)">U</span><div class="bar-bg"><div class="bar-fill" style="width:100%;background:linear-gradient(90deg,#2e7d32,#66bb6a)"></div></div><span class="bar-val" style="color:var(--green)">7.1t/日</span></div>
+      <div class="bar-note">※3月（繁忙期）の数値</div>
+    </div>
+  </div>
+
+  <!-- Two col: monthly + efficiency -->
+  <div class="two-col">
+    <!-- Monthly -->
+    <div>
+      <div class="sec-title">月別詳細データ</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="month-card">
+          <div class="month-title">3月 <span class="month-badge">繁忙・632t</span></div>
+          <div class="m-row"><span class="m-name">台数/月</span><div class="m-vals"><span class="v-r">183台</span><span class="v-arrow">→</span><span class="v-u">88台</span><span class="v-diff">▲52%</span></div></div>
+          <div class="m-row"><span class="m-name">稼働時間/日</span><div class="m-vals"><span class="v-r">5h49m</span><span class="v-arrow">→</span><span class="v-u">8h17m</span><span class="v-diff">1.43倍</span></div></div>
+          <div class="m-row"><span class="m-name">配送重量/日</span><div class="m-vals"><span class="v-r">3.4t</span><span class="v-arrow">→</span><span class="v-u">7.1t</span><span class="v-diff">2.1倍</span></div></div>
+          <div class="m-row"><span class="m-name">走行距離</span><div class="m-vals"><span class="v-r" style="font-size:10px">24,620km</span><span class="v-arrow">→</span><span class="v-u" style="font-size:10px">20,633km</span><span class="v-diff">▲16%</span></div></div>
+          <div class="m-row"><span class="m-name">トンキロ</span><div class="m-vals"><span class="v-r" style="font-size:10px">25,462</span><span class="v-arrow">→</span><span class="v-u" style="font-size:10px">31,734</span><span class="v-diff">+25%</span></div></div>
+        </div>
+        <div class="month-card">
+          <div class="month-title">5月 <span class="month-badge">閑散・536t</span></div>
+          <div class="m-row"><span class="m-name">台数/月</span><div class="m-vals"><span class="v-r">190台</span><span class="v-arrow">→</span><span class="v-u">82台</span><span class="v-diff">▲57%</span></div></div>
+          <div class="m-row"><span class="m-name">稼働時間/日</span><div class="m-vals"><span class="v-r">5h25m</span><span class="v-arrow">→</span><span class="v-u">8h00m</span><span class="v-diff">1.48倍</span></div></div>
+          <div class="m-row"><span class="m-name">配送重量/日</span><div class="m-vals"><span class="v-r">2.8t</span><span class="v-arrow">→</span><span class="v-u">6.5t</span><span class="v-diff">2.3倍</span></div></div>
+          <div class="m-row"><span class="m-name">走行距離</span><div class="m-vals"><span class="v-r" style="font-size:10px">22,536km</span><span class="v-arrow">→</span><span class="v-u" style="font-size:10px">18,153km</span><span class="v-diff">▲19%</span></div></div>
+          <div class="m-row"><span class="m-name">トンキロ</span><div class="m-vals"><span class="v-r" style="font-size:10px">19,345</span><span class="v-arrow">→</span><span class="v-u" style="font-size:10px">28,793</span><span class="v-diff">+49%</span></div></div>
+        </div>
+      </div>
+    </div>
+    <!-- Efficiency -->
+    <div>
+      <div class="sec-title">積載効率・稼働率の比較</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="eff-card">
+          <div class="eff-title">実車積載率（3月）</div>
+          <div class="eff-row"><span class="eff-tag r">R</span><div class="eff-bar-wrap"><div class="eff-fill r-fill" style="width:38%"><span class="eff-pct r-c">38%</span></div></div></div>
+          <div class="eff-row"><span class="eff-tag u">U</span><div class="eff-bar-wrap"><div class="eff-fill u-fill" style="width:50%"><span class="eff-pct u-c">50%</span></div></div></div>
+          <div class="eff-title" style="margin-top:12px">実車積載率（5月）</div>
+          <div class="eff-row"><span class="eff-tag r">R</span><div class="eff-bar-wrap"><div class="eff-fill r-fill" style="width:32%"><span class="eff-pct r-c">32%</span></div></div></div>
+          <div class="eff-row"><span class="eff-tag u">U</span><div class="eff-bar-wrap"><div class="eff-fill u-fill" style="width:51%"><span class="eff-pct u-c">51%</span></div></div></div>
+        </div>
+        <div class="eff-card">
+          <div class="eff-title">終日積載率（3月）</div>
+          <div class="eff-row"><span class="eff-tag r">R</span><div class="eff-bar-wrap"><div class="eff-fill r-fill" style="width:25%"><span class="eff-pct r-c">25%</span></div></div></div>
+          <div class="eff-row"><span class="eff-tag u">U</span><div class="eff-bar-wrap"><div class="eff-fill u-fill" style="width:46%"><span class="eff-pct u-c">46%</span></div></div></div>
+          <div class="eff-title" style="margin-top:12px">終日積載率（5月）</div>
+          <div class="eff-row"><span class="eff-tag r">R</span><div class="eff-bar-wrap"><div class="eff-fill r-fill" style="width:19%"><span class="eff-pct r-c">19%</span></div></div></div>
+          <div class="eff-row"><span class="eff-tag u">U</span><div class="eff-bar-wrap"><div class="eff-fill u-fill" style="width:46%"><span class="eff-pct u-c">46%</span></div></div></div>
+        </div>
+      </div>
+      <div class="darari-box">
+        <div class="darari-box-title">「ダラリ」の構造</div>
+        <div class="darari-grid">
+          <div class="darari-item"><div class="darari-emoji">⚠️</div><div class="darari-label" style="color:#c62828">ムリ＋ムラ</div><div class="darari-desc">制約＋波動対応の<br>過剰なトラック確保</div></div>
+          <div class="darari-item"><div class="darari-emoji">🚛</div><div class="darari-label" style="color:#e65100">ムダ</div><div class="darari-desc">稼働可能な時間・<br>荷台が空きになる</div></div>
+          <div class="darari-item"><div class="darari-emoji">🕐</div><div class="darari-label" style="color:#6b7a99">午前集中</div><div class="darari-desc">配送指定が午前に<br>偏り待機が発生</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Proposal -->
+  <div class="proposal-box">
+    <div class="sec-title" style="margin-bottom:16px">◎ 改善提案</div>
+    <div class="proposal-grid">
+      <div class="prop-item"><div class="prop-num">01</div><div class="prop-content"><h4>制約を減らす</h4><p>荷主との対話を通じ、時間指定や混載禁止などの配送制約を緩和・撤廃する</p></div></div>
+      <div class="prop-item"><div class="prop-num">02</div><div class="prop-content"><h4>G.works を活用</h4><p>波動を吸収し、配送ネットワークを強化。閑散期のワークシェアリングを解消する</p></div></div>
+      <div class="prop-item"><div class="prop-num">03</div><div class="prop-content"><h4>自動配車システムの導入</h4><p>常に最適配車を目指し、人的判断に依存しない効率的な配車を実現する</p></div></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="ig-footer">
+    <span>NPO法人 伝三郎商会</span>
+    <span>R＝実績配車データ（足立倉庫 2024年3月・5月）　U＝制約除外の自動配車（理想形）</span>
+    <span>2025年3月4日</span>
+  </div>
+
+</div><!-- /infographic-view -->
+
+<!-- Present button -->
+<button id="present-btn" onclick="startPresentation()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <polygon points="5,3 19,12 5,21"/>
+  </svg>
+  プレゼンテーション
+</button>
+
+<!-- ======================== PRESENTATION MODE ======================== -->
+<div id="presentation">
+
+  <!-- Slide 1: Title -->
+  <div class="slide slide-1 active" data-index="0">
+    <div class="s1-logo">🚛</div>
+    <div class="s-eyebrow">NPO法人 伝三郎商会 ／ 2025年3月</div>
+    <div class="s-title" style="font-size:96px;color:var(--blue)">配送ダラリレポート</div>
+    <div class="s-sub">
+      足立倉庫の配車データを分析。<br>
+      <strong>制約とワークシェアリング</strong>を解消すれば、<strong>どこまで効率化できるか</strong>を検証した。
+    </div>
+    <div style="display:flex;gap:32px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px 32px;box-shadow:0 2px 12px rgba(0,0,0,0.06)">
+      <div style="text-align:center;color:var(--muted);font-size:13px;">対象倉庫<br><span style="color:var(--text);font-weight:700;font-size:16px">足立倉庫</span></div>
+      <div style="width:1px;background:rgba(255,255,255,0.1)"></div>
+      <div style="text-align:center;color:var(--muted);font-size:13px;">検証期間<br><span style="color:var(--text);font-weight:700;font-size:16px">2024年3月・5月</span></div>
+      <div style="width:1px;background:rgba(255,255,255,0.1)"></div>
+      <div style="text-align:center;color:var(--muted);font-size:13px;">比較対象<br><span style="color:var(--text);font-weight:700;font-size:16px">実績（R）vs 理想（U）</span></div>
+    </div>
+  </div>
+
+  <!-- Slide 2: 3 KPI summary -->
+  <div class="slide slide-2" data-index="1">
+    <div class="s-eyebrow">CONCLUSION — 結論</div>
+    <div class="s-title" style="font-size:64px;color:var(--blue);margin-bottom:12px">制約を外すと、何が変わるか？</div>
+    <div class="s-sub" style="margin-bottom:40px">「理想（U）」と「実績（R）」の差</div>
+    <div class="s-metric-grid">
+      <div class="s-metric-card">
+        <div class="lbl">① トラック台数</div>
+        <div class="num" style="color:#64b5f6">1/2</div>
+        <div class="unit">以下</div>
+        <div class="desc">最大▲57%削減<br>3月183台→88台</div>
+      </div>
+      <div class="s-metric-card">
+        <div class="lbl">② 1台あたり稼働時間</div>
+        <div class="num" style="color:#ffb74d">1.4</div>
+        <div class="unit">倍以上</div>
+        <div class="desc">3月：5h49m → 8h17m<br>待機時間が稼働時間へ</div>
+      </div>
+      <div class="s-metric-card">
+        <div class="lbl">③ 1台あたり配送重量</div>
+        <div class="num" style="color:#81c784">2</div>
+        <div class="unit">倍以上</div>
+        <div class="desc">3月：3.4t → 7.1t<br>荷台の空きを解消</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3: トラック台数 detail -->
+  <div class="slide slide-3" data-index="2">
+    <div class="s-eyebrow">FINDING 01 — トラック台数</div>
+    <div class="s-title" style="font-size:72px;color:#ff8a80">台数は「半分以下」に削減できる</div>
+    <div class="s-sub" style="margin-bottom:48px">繁忙期の3月でも▲52%、閑散期の5月は<strong>▲57%</strong>もの削減余地がある</div>
+    <div class="s-compare">
+      <div class="s-compare-item">
+        <div class="s-bar-wrap">
+          <div class="s-bar r-bar" style="height:280px">183</div>
+          <div class="s-bar-label" style="color:#ff8a80">R 実績</div>
+        </div>
+      </div>
+      <div class="s-arrow-label">→</div>
+      <div class="s-compare-item">
+        <div class="s-bar-wrap">
+          <div class="s-bar u-bar" style="height:134px">88</div>
+          <div class="s-bar-label" style="color:#64b5f6">U 理想</div>
+        </div>
+      </div>
+      <div style="align-self:center;padding-bottom:30px;margin-left:20px;text-align:center;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:80px;color:#ef5350;line-height:1">▲52%</div>
+        <div style="font-size:16px;color:#4a5568">（3月実績）</div>
+      </div>
+    </div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.35)">単位：台/月　※3月（営業日20日間）</div>
+  </div>
+
+  <!-- Slide 4: 稼働時間・重量 -->
+  <div class="slide slide-4" data-index="3">
+    <div class="s-eyebrow">FINDING 02 & 03 — 稼働時間・配送重量</div>
+    <div class="s-title" style="font-size:64px;color:#a5d6a7">1台の生産性が大幅に向上する</div>
+    <div class="s-sub" style="margin-bottom:40px">台数が減っても、1台あたりの稼働と積載量が増えるため<strong>総配送量は維持</strong>できる</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;width:100%;max-width:900px;">
+      <div>
+        <div style="font-size:13px;letter-spacing:2px;color:rgba(255,255,255,0.35);margin-bottom:20px;text-align:center">稼働時間（1台/日）</div>
+        <div class="s-compare" style="margin-bottom:16px">
+          <div class="s-compare-item">
+            <div class="s-bar-wrap">
+              <div class="s-bar r-bar" style="height:160px;font-size:22px">5h49m</div>
+              <div class="s-bar-label" style="color:#ff8a80">R</div>
+            </div>
+          </div>
+          <div class="s-arrow-label" style="font-size:32px">→</div>
+          <div class="s-compare-item">
+            <div class="s-bar-wrap">
+              <div class="s-bar u-bar" style="height:229px;font-size:22px">8h17m</div>
+              <div class="s-bar-label" style="color:#64b5f6">U</div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center;font-family:'Bebas Neue',sans-serif;font-size:56px;color:#ffb74d">1.43倍</div>
+      </div>
+      <div>
+        <div style="font-size:13px;letter-spacing:2px;color:rgba(255,255,255,0.35);margin-bottom:20px;text-align:center">配送重量（1台/日）</div>
+        <div class="s-compare" style="margin-bottom:16px">
+          <div class="s-compare-item">
+            <div class="s-bar-wrap">
+              <div class="s-bar r-bar" style="height:100px;font-size:22px">3.4t</div>
+              <div class="s-bar-label" style="color:#ff8a80">R</div>
+            </div>
+          </div>
+          <div class="s-arrow-label" style="font-size:32px">→</div>
+          <div class="s-compare-item">
+            <div class="s-bar-wrap">
+              <div class="s-bar u-bar" style="height:210px;font-size:22px">7.1t</div>
+              <div class="s-bar-label" style="color:#64b5f6">U</div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center;font-family:'Bebas Neue',sans-serif;font-size:56px;color:#81c784">2.1倍</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 5: ダラリ構造 -->
+  <div class="slide slide-5" data-index="4">
+    <div class="s-eyebrow">ANALYSIS — 考察</div>
+    <div class="s-title" style="font-size:80px;color:var(--text)">なぜ「ダラリ」が生まれるのか</div>
+    <div class="s-sub" style="margin-bottom:48px">「U-R」の差は<strong>制約</strong>と<strong>ワークシェアリング</strong>が原因。終日積載率は3月25%・5月19%に過ぎない。</div>
+    <div class="s-darari-grid">
+      <div class="s-darari-card" style="border-color:rgba(198,40,40,0.25)">
+        <div class="s-darari-emoji">⚠️</div>
+        <div class="s-darari-name" style="color:#ef5350">ムリ＋ムラ</div>
+        <div class="s-darari-desc">制約（時間指定・混載禁止）と波動（繁閑差）に備えて過剰なトラック数を確保している</div>
+      </div>
+      <div class="s-darari-card" style="border-color:rgba(230,81,0,0.25)">
+        <div class="s-darari-emoji">🚛</div>
+        <div class="s-darari-name" style="color:#ff7043">ムダ</div>
+        <div class="s-darari-desc">稼働できる時間帯・荷台の空きが発生。午前集中の配送指定が午後の待機を生む</div>
+      </div>
+      <div class="s-darari-card" style="border-color:rgba(21,101,192,0.25)">
+        <div class="s-darari-emoji">🔄</div>
+        <div class="s-darari-name" style="color:#64b5f6">ワークシェアリング</div>
+        <div class="s-darari-desc">閑散期には余剰車両がさらに増加。波動を吸収する仕組みがない</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 6: 提案 -->
+  <div class="slide slide-6" data-index="5">
+    <div class="s-eyebrow">PROPOSAL — 改善提案</div>
+    <div class="s-title" style="font-size:72px;color:var(--red)">3つのアクションで変える</div>
+    <div class="s-sub" style="margin-bottom:48px">制約・波動・配車の最適化を同時に進めることで、大幅な省力・省人化が実現できる</div>
+    <div class="s-prop-grid">
+      <div class="s-prop-card" style="border-color:rgba(21,101,192,0.25)">
+        <div class="s-prop-num">01</div>
+        <div class="s-prop-icon">🤝</div>
+        <div class="s-prop-title">制約を減らす</div>
+        <div class="s-prop-desc">荷主との対話を通じ、時間指定・混載禁止などの配送制約を緩和・撤廃する</div>
+      </div>
+      <div class="s-prop-card" style="border-color:rgba(46,125,50,0.3)">
+        <div class="s-prop-num">02</div>
+        <div class="s-prop-icon">🌐</div>
+        <div class="s-prop-title">G.works を活用</div>
+        <div class="s-prop-desc">配送マッチングで波動を吸収し、閑散期のワークシェアリングを解消。ネットワークを強化する</div>
+      </div>
+      <div class="s-prop-card" style="border-color:rgba(230,81,0,0.25)">
+        <div class="s-prop-num">03</div>
+        <div class="s-prop-icon">⚙️</div>
+        <div class="s-prop-title">自動配車システム</div>
+        <div class="s-prop-desc">常に最適配車を目指し、人的判断に依存しない効率的な配車を実現する</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /presentation -->
+
+<!-- Close button -->
+<button id="close-btn" onclick="closePresentation()">✕</button>
+
+<!-- Nav bar -->
+<div id="nav-bar">
+  <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>‹</button>
+  <div id="slide-indicator"></div>
+  <span id="slide-counter">1 / 6</span>
+  <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">›</button>
+</div>
+
+<script>
+  const TOTAL = 6;
+  let current = 0;
+  let isAnimating = false;
+
+  function buildDots() {
+    const ind = document.getElementById('slide-indicator');
+    ind.innerHTML = '';
+    for (let i = 0; i < TOTAL; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i === 0 ? ' active' : '');
+      d.onclick = () => goToSlide(i);
+      ind.appendChild(d);
+    }
+  }
+
+  function updateNav() {
+    document.getElementById('prev-btn').disabled = current === 0;
+    document.getElementById('next-btn').disabled = current === TOTAL - 1;
+    document.getElementById('slide-counter').textContent = (current + 1) + ' / ' + TOTAL;
+    document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+
+  function goToSlide(next) {
+    if (isAnimating || next === current || next < 0 || next >= TOTAL) return;
+    isAnimating = true;
+
+    const slides = document.querySelectorAll('.slide');
+    const prev = current;
+    current = next;
+
+    slides[prev].classList.add('exit-up');
+    slides[prev].classList.remove('active');
+
+    setTimeout(() => {
+      slides[next].classList.add('active');
+      slides[next].classList.remove('exit-up');
+      slides[prev].classList.remove('exit-up');
+      updateNav();
+      isAnimating = false;
+    }, 80);
+  }
+
+  function changeSlide(dir) { goToSlide(current + dir); }
+
+  function startPresentation() {
+    current = 0;
+    const slides = document.querySelectorAll('.slide');
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'exit-up');
+      if (i === 0) s.classList.add('active');
+    });
+    document.getElementById('presentation').classList.add('active');
+    document.getElementById('close-btn').classList.add('active');
+    document.getElementById('nav-bar').classList.add('active');
+    document.getElementById('present-btn').style.display = 'none';
+    document.body.style.overflow = 'hidden';
+    buildDots();
+    updateNav();
+  }
+
+  function closePresentation() {
+    document.getElementById('presentation').classList.remove('active');
+    document.getElementById('close-btn').classList.remove('active');
+    document.getElementById('nav-bar').classList.remove('active');
+    document.getElementById('present-btn').style.display = 'flex';
+    document.body.style.overflow = '';
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('presentation').classList.contains('active')) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); changeSlide(-1); }
+    if (e.key === 'Escape') closePresentation();
+  });
+
+  // Wheel navigation
+  let wheelLock = false;
+  document.addEventListener('wheel', e => {
+    if (!document.getElementById('presentation').classList.contains('active')) return;
+    if (wheelLock) return;
+    wheelLock = true;
+    if (e.deltaY > 0) changeSlide(1);
+    else changeSlide(-1);
+    setTimeout(() => wheelLock = false, 800);
+  });
+
+  buildDots();
+</script>
+</body>
+</html>
